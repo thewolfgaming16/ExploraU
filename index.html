@@ -501,37 +501,27 @@
 
     // ... (El código de los marcadores permanece igual) ...
 
-    // LÓGICA PARA MANEJAR EL FORMULARIO DE RESEÑAS
-    reviewForm.addEventListener('submit', (event) => {
-        event.preventDefault(); // Previene el envío del formulario
+   // LÓGICA PARA MANEJAR EL FORMULARIO DE RESEÑAS
+reviewForm.addEventListener('submit', (event) => {
+    event.preventDefault(); // Previene el envío del formulario
 
-        const reviewerName = document.getElementById('reviewerName').value;
-        const reviewText = document.getElementById('reviewText').value;
-        const rating = reviewForm.querySelector('input[name="rating"]:checked');
+    const reviewerName = document.getElementById('reviewerName').value;
+    const reviewText = document.getElementById('reviewText').value;
+    const rating = reviewForm.querySelector('input[name="rating"]:checked');
 
-        if (!rating) {
-            alert('Por favor, selecciona una calificación con estrellas.');
-            return;
-        }
-        const ratingValue = rating.value;
+    if (!rating) {
+        alert('Por favor, selecciona una calificación con estrellas.');
+        return;
+    }
+    const ratingValue = rating.value;
 
-        // Crea la nueva reseña como un objeto y la añade al array de la universidad
-        const newReview = { author: reviewerName, text: reviewText, rating: ratingValue };
-        
-        // Añade la nueva reseña al array de la universidad actual
-        if (currentUniversity) {
-            currentUniversity.reviews.push(newReview);
-            
-            // Actualiza el objeto de todas las reseñas y lo guarda en LocalStorage
-            allReviews[currentUniversity.name] = currentUniversity.reviews;
-            saveReviewsToStorage(allReviews);
+    // Crea la nueva reseña como un objeto y la añade al array de la universidad
+    const newReview = { author: reviewerName, text: reviewText, rating: ratingValue };
+    currentUniversity.reviews.push(newReview);
 
-            // Vuelve a renderizar el panel para incluir la nueva reseña
-            showUniversityDetails(currentUniversity);
-        }
+    // Vuelve a renderizar el panel para incluir la nueva reseña
+    showUniversityDetails(currentUniversity);
 
-        // Limpia el formulario para que el usuario pueda agregar otra reseña
-        reviewForm.reset();
-    });
-
+    // Limpia el formulario para que el usuario pueda agregar otra reseña
+    reviewForm.reset();
 });
