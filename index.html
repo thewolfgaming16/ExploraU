@@ -484,32 +484,109 @@
             // LÓGICA PARA MANEJAR EL FORMULARIO DE RESEÑAS
             reviewForm.addEventListener('submit', (event) => {
                 event.preventDefault(); // Previene el envío del formulario
+                /* Lógica de la aplicación en JavaScript */
+document.addEventListener('DOMContentLoaded', () => {
 
-                const reviewerName = document.getElementById('reviewerName').value;
-                const reviewText = document.getElementById('reviewText').value;
-                const rating = reviewForm.querySelector('input[name="rating"]:checked');
+    // ... (El código de inicialización del mapa y los datos de las universidades permanecen igual) ...
 
-                if (!rating) {
-                    alert('Por favor, selecciona una calificación con estrellas.');
-                    return;
-                }
-                const ratingValue = rating.value;
+    const infoPanelContent = document.getElementById('university-details-content');
+    const reviewFormContainer = document.getElementById('review-form-container');
+    const reviewForm = document.getElementById('reviewForm');
+    
+    let currentUniversity = null;
 
-                // Crea la nueva reseña como un objeto y la añade al array de la universidad
-                const newReview = { author: reviewerName, text: reviewText, rating: ratingValue };
-                currentUniversity.reviews.push(newReview);
+    // --- Nuevas funciones para manejar LocalStorage ---
+    function loadReviewsFromStorage() {
+        const storedReviews = localStorage.getItem('universityReviews');
+        if (storedReviews) {
+            return JSON.parse(storedReviews);
+        }
+        return {};
+    }
 
-                // Volvemos a renderizar el panel para incluir la nueva reseña
-                showUniversityDetails(currentUniversity);
+    function saveReviewsToStorage(reviews) {
+        localStorage.setItem('universityReviews', JSON.stringify(reviews));
+    }
 
-                // Limpia el formulario para que el usuario pueda agregar otra reseña
-                reviewForm.reset();
-            });
+    // --- Combinamos los datos iniciales con los guardados ---
+    let allReviews = loadReviewsFromStorage();
+    universities.forEach(uni => {
+        if (allReviews[uni.name]) {
+            uni.reviews = allReviews[uni.name];
+        } else {
+            allReviews[uni.name] = uni.reviews;
+        }
+    });
 
+    // Función para mostrar los detalles de la universidad en el panel
+    function showUniversityDetails(uni) {
+        currentUniversity = uni;
+        let reviewsHtml = '';
+        uni.reviews.forEach(review => {
+            reviewsHtml += `
+                <div class="review">
+                    <p>"${review.text}"</p>
+                    <p class="author">- ${review.author}</p>
+                </div>
+            `;
         });
+
+        // Actualizamos el panel de información con los detalles de la universidad
+        infoPanelContent.innerHTML = `
+            <h3>${uni.name}</h3>
+            <p><strong>Ciudad:</strong> ${uni.city}</p>
+            <p><strong>Ranking:</strong> ${uni.ranking}</p>
+            <p><strong>Pruebas de Acceso:</strong> ${uni.tests}</p>
+            <h4>Reseñas de Estudiantes:</h4>
+            ${reviewsHtml}
+        `;
+
+        // Mostramos el formulario de reseña
+        reviewFormContainer.classList.remove('hidden');
+
+        // Aseguramos que el mapa se re-renderice correctamente
+        map.invalidateSize();
+    }
+
+    // ... (El código de los marcadores permanece igual) ...
+
+    // LÓGICA PARA MANEJAR EL FORMULARIO DE RESEÑAS
+    reviewForm.addEventListener('submit', (event) => {
+        event.preventDefault(); // Previene el envío del formulario
+        const reviewerName = document.getElementById('reviewerName').value;
+        const reviewText = document.getElementById('reviewText').value;
+        const rating = reviewForm.querySelector('input[name="rating"]:checked');
+
+        if (!rating) {
+            alert('Por favor, selecciona una calificación con estrellas.');
+            return;
+        }
+        const ratingValue = rating.value;
+
+        // Crea la nueva reseña como un objeto y la añade al array de la universidad
+        const newReview = { author: reviewerName, text: reviewText, rating: ratingValue };
+        
+        // Añade la nueva reseña al array de la universidad actual
+        if (currentUniversity) {
+            currentUniversity.reviews.push(newReview);
+            
+            // Actualiza el objeto de todas las reseñas y lo guarda en LocalStorage
+            allReviews[currentUniversity.name] = currentUniversity.reviews;
+            saveReviewsToStorage(allReviews);
+
+            // Vuelve a renderizar el panel para incluir la nueva reseña
+            showUniversityDetails(currentUniversity);
+        }
+
+        // Limpia el formulario para que el usuario pueda agregar otra reseña
+        reviewForm.reset();
+    });
+
+});
     </script>
 </body>
 </html>
+
 
 
 
