@@ -302,22 +302,22 @@
                 <h3>Deja tu Reseña</h3>
                 <form id="reviewform">
                     <div class="form-group">
-                        <label form="reviewerName">Tu Nombre:</label>
+                        <label for="reviewerName">Tu Nombre:</label>
                         <input type="text" id="reviewerName" name="reviewerName" placeholder="Escribe tu nombre aquí" required>
                     </div>
                     <div class="form-group">
-                        <label form="rating">Tu Calificación:</label>
+                        <label for="rating">Tu Calificación:</label>
                         <div class="rating-stars">
                             <!-- Radio buttons para el sistema de estrellas -->
-                            <input type="radio" id="star5" name="rating" value="5" required /><label form="star5" title="5 estrellas"></label>
-                            <input type="radio" id="star4" name="rating" value="4" /><label form="star4" title="4 estrellas"></label>
-                            <input type="radio" id="star3" name="rating" value="3" /><label form="star3" title="3 estrellas"></label>
-                            <input type="radio" id="star2" name="rating" value="2" /><label form="star2" title="2 estrellas"></label>
-                            <input type="radio" id="star1" name="rating" value="1" /><label form="star1" title="1 estrella"></label>
+                            <input type="radio" id="star5" name="rating" value="5" required /><label for="star5" title="5 estrellas"></label>
+                            <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 estrellas"></label>
+                            <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 estrellas"></label>
+                            <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 estrellas"></label>
+                            <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 estrella"></label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label form="reviewText">Tu Reseña:</label>
+                        <label for="reviewText">Tu Reseña:</label>
                         <textarea id="reviewText" name="reviewText" rows="4" placeholder="Comparte tu experiencia..." required></textarea>
                     </div>
                     <button type="submit" class="submit-button">Enviar Reseña</button>
@@ -525,6 +525,7 @@ reviewForm.addEventListener('submit', (event) => {
     // Limpia el formulario para que el usuario pueda agregar otra reseña
     reviewForm.reset();
 });
+
 
 
 
