@@ -302,11 +302,11 @@
                 <h3>Deja tu Reseña</h3>
                 <form id="reviewForm">
                     <div class="form-group">
-                        <label form="reviewerName">Tu Nombre:</label>
+                        <label for="reviewerName">Tu Nombre:</label>
                         <input type="text" id="reviewerName" name="reviewerName" placeholder="Escribe tu nombre aquí" required>
                     </div>
                     <div class="form-group">
-                        <label form="rating">Tu Calificación:</label>
+                        <label for="rating">Tu Calificación:</label>
                         <div class="rating-stars">
                             <!-- Radio buttons para el sistema de estrellas -->
                             <input type="radio" id="star5" name="rating" value="5" required /><label for="star5" title="5 estrellas"></label>
@@ -317,7 +317,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label form="reviewText">Tu Reseña:</label>
+                        <label for="reviewText">Tu Reseña:</label>
                         <textarea id="reviewText" name="reviewText" rows="4" placeholder="Comparte tu experiencia..." required></textarea>
                     </div>
                     <button type="submit" class="submit-button">Enviar Reseña</button>
@@ -436,183 +436,9 @@
                 
                 }
             ];
-
-           const infoPanelContent = document.getElementById('university-details-content');
-            const reviewFormContainer = document.getElementById('review-form-container');
-            const reviewForm = document.getElementById('reviewForm');
-
-            // Función para mostrar los detalles de la universidad en el panel
-            function showUniversityDetails(uni) {
-                currentUniversity = uni;
-                let reviewsHtml = '';
-                uni.reviews.forEach(review => {
-                    reviewsHtml += `
-                        <div class="review">
-                            <p>"${review.text}"</p>
-                            <p class="author">- ${review.author}</p>
-                        </div>
-                    `;
-                });
-
-                // Actualizamos el panel de información con los detalles de la universidad
-                infoPanelContent.innerHTML = `
-                    <h3>${uni.name}</h3>
-                    <p><strong>Ciudad:</strong> ${uni.city}</p>
-                    <p><strong>Ranking:</strong> ${uni.ranking}</p>
-                    <p><strong>Pruebas de Acceso:</strong> ${uni.tests}</p>
-                    <h4>Reseñas de Estudiantes:</h4>
-                    ${reviewsHtml}
-                `;
-
-               // Mostramos el formulario de reseña
-                reviewFormContainer.classList.remove('hidden');
-
-                // Aseguramos que el mapa se re-renderice correctamente
-                map.invalidateSize();
-            }
-
-            // Recorremos el array de universidades para crear un marcador para cada una
-            universities.forEach(uni => {
-                const marker = L.marker([uni.lat, uni.lng]).addTo(map);
-
-                // Asignamos una función al evento de clic en el marcador
-                marker.on('click', () => {
-                    showUniversityDetails(uni);
-                });
-            });
-
-            // LÓGICA PARA MANEJAR EL FORMULARIO DE RESEÑAS
-            reviewForm.addEventListener('submit', (event) => {
-                event.preventDefault(); // Previene el envío del formulario
-                /* Lógica de la aplicación en JavaScript */
-document.addEventListener('DOMContentLoaded', () => {
-
+                
+        
     // ... (El código de inicialización del mapa y los datos de las universidades permanecen igual) ...
-
-    const infoPanelContent = document.getElementById('university-details-content');
-    const reviewFormContainer = document.getElementById('review-form-container');
-    const reviewForm = document.getElementById('reviewForm');
-    
-    let currentUniversity = null;
-
-    // --- Nuevas funciones para manejar LocalStorage ---
-    function loadReviewsFromStorage() {
-        const storedReviews = localStorage.getItem('universityReviews');
-        if (storedReviews) {
-            return JSON.parse(storedReviews);
-        }
-        return {};
-    }
-
-    function saveReviewsToStorage(reviews) {
-        localStorage.setItem('universityReviews', JSON.stringify(reviews));
-    }
-
-    // --- Combinamos los datos iniciales con los guardados ---
-    let allReviews = loadReviewsFromStorage();
-    universities.forEach(uni => {
-        if (allReviews[uni.name]) {
-            uni.reviews = allReviews[uni.name];
-        } else {
-            allReviews[uni.name] = uni.reviews;
-        }
-    });
-
-    // Función para mostrar los detalles de la universidad en el panel
-    function showUniversityDetails(uni) {
-        currentUniversity = uni;
-        let reviewsHtml = '';
-        uni.reviews.forEach(review => {
-            reviewsHtml += `
-                <div class="review">
-                    <p>"${review.text}"</p>
-                    <p class="author">- ${review.author}</p>
-                </div>
-            `;
-        });
-
-        // Actualizamos el panel de información con los detalles de la universidad
-        infoPanelContent.innerHTML = `
-            <h3>${uni.name}</h3>
-            <p><strong>Ciudad:</strong> ${uni.city}</p>
-            <p><strong>Ranking:</strong> ${uni.ranking}</p>
-            <p><strong>Pruebas de Acceso:</strong> ${uni.tests}</p>
-            <h4>Reseñas de Estudiantes:</h4>
-            ${reviewsHtml}
-        `;
-
-        // Mostramos el formulario de reseña
-        reviewFormContainer.classList.remove('hidden');
-
-        // Aseguramos que el mapa se re-renderice correctamente
-        map.invalidateSize();
-    }
-
-   /* Lógica de la aplicación en JavaScript */
-document.addEventListener('DOMContentLoaded', () => {
-
-    // ... (El código de inicialización del mapa y los datos de las universidades permanecen igual) ...
-
-    const infoPanelContent = document.getElementById('university-details-content');
-    const reviewFormContainer = document.getElementById('review-form-container');
-    const reviewForm = document.getElementById('reviewForm');
-    
-    let currentUniversity = null;
-
-    // --- Nuevas funciones para manejar LocalStorage ---
-    function loadReviewsFromStorage() {
-        const storedReviews = localStorage.getItem('universityReviews');
-        if (storedReviews) {
-            return JSON.parse(storedReviews);
-        }
-        return {};
-    }
-
-    function saveReviewsToStorage(reviews) {
-        localStorage.setItem('universityReviews', JSON.stringify(reviews));
-    }
-
-    // --- Combinamos los datos iniciales con los guardados ---
-    let allReviews = loadReviewsFromStorage();
-    universities.forEach(uni => {
-        if (allReviews[uni.name]) {
-            uni.reviews = allReviews[uni.name];
-        } else {
-            allReviews[uni.name] = uni.reviews;
-        }
-    });
-
-    // Función para mostrar los detalles de la universidad en el panel
-    function showUniversityDetails(uni) {
-        currentUniversity = uni;
-        let reviewsHtml = '';
-        uni.reviews.forEach(review => {
-            reviewsHtml += `
-                <div class="review">
-                    <p>"${review.text}"</p>
-                    <p class="author">- ${review.author}</p>
-                </div>
-            `;
-        });
-
-        // Actualizamos el panel de información con los detalles de la universidad
-        infoPanelContent.innerHTML = `
-            <h3>${uni.name}</h3>
-            <p><strong>Ciudad:</strong> ${uni.city}</p>
-            <p><strong>Ranking:</strong> ${uni.ranking}</p>
-            <p><strong>Pruebas de Acceso:</strong> ${uni.tests}</p>
-            <h4>Reseñas de Estudiantes:</h4>
-            ${reviewsHtml}
-        `;
-
-        // Mostramos el formulario de reseña
-        reviewFormContainer.classList.remove('hidden');
-
-        // Aseguramos que el mapa se re-renderice correctamente
-        map.invalidateSize();
-    }
-
- // ... (El código de inicialización del mapa y los datos de las universidades permanecen igual) ...
 
     const infoPanelContent = document.getElementById('university-details-content');
     const reviewFormContainer = document.getElementById('review-form-container');
@@ -709,9 +535,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
-
-
-
-
-
-
