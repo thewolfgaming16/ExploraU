@@ -300,7 +300,7 @@
             <!-- El formulario ahora es un elemento fijo en el DOM -->
             <div class="review-form-container hidden" id="review-form-container">
                 <h3>Deja tu Reseña</h3>
-                <form id="reviewForm">
+                <form id="reviewform">
                     <div class="form-group">
                         <label form="reviewerName">Tu Nombre:</label>
                         <input type="text" id="reviewerName" name="reviewerName" placeholder="Escribe tu nombre aquí" required>
@@ -525,5 +525,6 @@ reviewForm.addEventListener('submit', (event) => {
     // Limpia el formulario para que el usuario pueda agregar otra reseña
     reviewForm.reset();
 });
+
 
 
