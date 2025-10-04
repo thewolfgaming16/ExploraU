@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExploraU - Del mapa directo a tus sueños</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<style>
+/* Estilos esenciales */
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    margin:0; 
+    padding:0; 
+    color:#333; 
+    display:flex; 
+    flex-direction:column; 
+    min-height:100vh; 
+    background: linear-gradient(135deg, #a4c9e7, #b2f4f2);
+}
+header {
+    background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 100%); 
+    color:#003366; 
+    /* Aumento de padding para acomodar el logo gigante */
+    padding: 30px 25px; 
+    box-shadow:0 8px 25px rgba(0,0,0,0.1); 
+    border:1px solid rgba(255,255,255,0.3);
+    
+    /* Flexbox para posicionar el logo */
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+/* IMPORTANTE: ESTO HACE QUE EL MAPA SE VEA */
+#map {
+    flex-grow: 1; 
+    /* Se reduce la altura del mapa para compensar la cabecera más grande */
+    height: 60vh; 
+    width: 100%;
+    z-index: 1; 
+}
+
+/* Estilos para el panel lateral (sin cambios) */
+#details-panel {
+    position: fixed; 
+    top: 0;
+    right: 0;
+    width: 350px;
+    height: 100%;
+    background-color: white;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+    transform: translateX(350px); 
+    transition: transform 0.3s ease-in-out;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    z-index: 1000;
+}
+#details-panel.open {
+    transform: translateX(0); 
+
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px; /* Ajuste para el label */
+    margin-bottom: 10px; /* Separación */
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+label {
+    display: block; /* Para que la etiqueta esté encima del input */
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+}
+
+/* --- ESTILOS DEL LOGO: AHORA MÁS GRANDE --- */
+
+/* 🔑 CLAVE: FUERZA la altura de la imagen a 150px por defecto */
+.app-logo {
+    height: 150px !important; 
+    width: auto !important; 
+    display: block;
+}
+
+.logo-container {
+    /* Ajusta el contenedor para el logo de 150px */
+    min-width: 160px; 
+    text-align: left;
+    padding-right: 30px; 
+    font-size: 0; 
+}
+
+.header-content {
+    flex-grow: 1; 
+    text-align: center; 
+}
+.header-content h1 {
+    font-size: 2.5em; /* Título más grande para el logo */
+    margin: 0;
+}
+.header-content p {
+    font-size: 1.2em; /* Subtítulo más grande */
+    margin: 0;
+    font-weight: 300;
+}
+
+/* MEDIA QUERY: AJUSTE PARA PANTALLAS PEQUEÑAS (TABLET Y MÓVIL) */
+@media (max-width: 768px) {
+    .app-logo {
+        height: 100px !important; /* Logo grande en móvil */
+    }
+    .logo-container {
+        min-width: 110px;
+        padding-right: 15px;
+    }
+    header {
+        padding: 20px 10px; /* Aumenta el padding vertical en móviles */
+    }
+    .header-content h1 {
+        font-size: 1.8em; 
+    }
+    .header-content p {
+        font-size: 1em;
+    }
+    #map {
+        height: 65vh; /* Se deja más espacio al mapa en móvil si la cabecera es muy grande */
+    }
+}
+
+/* MEDIA QUERY: AJUSTE PARA PANTALLAS GRANDES (ESCRITORIO) */
+@media (min-width: 1200px) {
+    .app-logo {
+        height: 180px !important; /* El tamaño más grande en escritorio */
+    }
+    .logo-container {
+        min-width: 200px; 
+        padding-right: 40px;
+    }
+    header {
+        padding: 40px 50px; /* Más padding para la cabecera */
+    }
+}
+
+/* --- FIN ESTILOS LOGO --- */
+
+
+/* --- BOTÓN DE CIERRE OPTIMIZADO PARA TABLET --- */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 32px; 
+    width: 40px; 
+    height: 40px; 
+    line-height: 40px; 
+    text-align: center; 
+    color: #003366; 
+    background: #f0f0f0; 
+    border-radius: 50%; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    z-index: 1001; 
+}
+.close-btn:active, .close-btn:focus {
+    background-color: #ddd;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+/* --- FIN BOTÓN DE CIERRE --- */
+
+/* Estilos de inputs/botones */
+textarea, button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+}
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para el pie de página (Footer) */
+footer {
+    background-color: #003366; /* Fondo azul oscuro */
+    color: white; /* Texto blanco */
+    padding: 15px 0; /* Espacio interno */
+    text-align: center; /* Centra el texto */
+    font-size: 0.9em; /* Fuente ligeramente más pequeña */
+    border-top: 5px solid #007bff; /* Línea de color de acento arriba */
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    margin-top: 20px; /* Separación del mapa */
+    width: 100%; /* Asegura que ocupe todo el ancho */
+}
+
+footer p {
+    margin: 5px 0; /* Pequeño margen entre líneas de texto */
+}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <img src="fotos/logo.png" class="app-logo">
+    </div>
+    
+    <div class="header-content">
+        <h1>ExploraU 🎓</h1>
+        <p>Del mapa directo a tus sueños</p>
+    </div>
+</header>
+
+<main>
+    <div id="map"></div>
+</main>
+
+<div id="details-panel">
+    <button class="close-btn" onclick="closeDetailsPanel()">×</button> 
+    <h2>Detalles de la Universidad</h2>
+    <div id="uni-details-content">
+        <p style="text-align: center; padding: 50px 0; color: #888;">Haz clic en un marcador para ver sus detalles y reseñas.</p>
+    </div>
+</div>
+
+<script>
+let universities = []; 
+let currentUniversity = null; 
+
+// 1. Inicialización de Leaflet
+const map = L.map('map').setView([-36.78470994968031, -73.08512763287513], 1); 
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+const markers = L.markerClusterGroup({ spiderfyOnMaxZoom: false });
+map.addLayer(markers);
+
+// FUNCIONES DE PERSISTENCIA
+// ---------------------------------------------------------------
+
+/** Carga las reseñas de localStorage y las asigna a las universidades correspondientes. */
+/** Carga datos adicionales (PAES, Web) de localStorage y los asigna a las universidades. */
+function loadAdditionalData() {
+    const savedData = localStorage.getItem('universityAdditionalData');
+    if (savedData) {
+        try {
+            const dataMap = JSON.parse(savedData);
+            
+            // Asigna los datos guardados a los objetos uni usando el ID único (@id)
+            universities.forEach(uni => {
+                if (dataMap[uni.id]) {
+                    // Sobreescribe/Añade las propiedades al objeto uni
+                    uni.paes = dataMap[uni.id].paes || '';
+                    uni.website = dataMap[uni.id].website || '';
+                }
+            });
+        } catch (e) {
+            console.error("Error al parsear datos adicionales de localStorage:", e);
+        }
+    }
+}
+
+/** Guarda los datos adicionales (PAES, Web). Esta función ya no se usa, pero se mantiene si planeas actualizar los datos externamente. */
+function saveAdditionalData() {
+    const dataToSave = {};
+    
+    universities.forEach(uni => {
+        if (uni.paes || uni.website) {
+            dataToSave[uni.id] = {
+                paes: uni.paes || '',
+                website: uni.website || ''
+            };
+        }
+    });
+    
+    localStorage.setItem('universityAdditionalData', JSON.stringify(dataToSave));
+}
+
+function loadReviews() {
+    const savedReviews = localStorage.getItem('universityReviews');
+    if (savedReviews) {
+        try {
+            const reviewsMap = JSON.parse(savedReviews);
+            
+            // Asigna las reseñas guardadas a los objetos uni usando el ID único
+            universities.forEach(uni => {
+                if (reviewsMap[uni.id]) {
+                    uni.reviews = reviewsMap[uni.id];
+                }
+            });
+        } catch (e) {
+            console.error("Error al parsear reseñas de localStorage:", e);
+        }
+    }
+}
+
+/** Guarda las reseñas de todas las universidades que tienen al menos una reseña en localStorage. */
+function saveReviews() {
+    const reviewsToSave = {};
+    
+    // Crea un mapa solo con los datos de reseñas (ID -> array de reseñas)
+    universities.forEach(uni => {
+        if (uni.reviews && uni.reviews.length > 0) {
+            reviewsToSave[uni.id] = uni.reviews;
+        }
+    });
+    
+    // Guarda el mapa en localStorage
+    localStorage.setItem('universityReviews', JSON.stringify(reviewsToSave));
+}
+
+// ---------------------------------------------------------------
+function getRandomPaesScore(min, max) {
+    // Genera un número entero aleatorio entre min (incluido) y max (incluido)
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// 2. Función de carga de datos (GeoJSON local)
+async function fetchUniversities() {
+    try {
+        const resp = await fetch('export.geojson');
+        
+        if (!resp.ok) {
+            throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+        
+        const geojsonData = await resp.json();
+
+        geojsonData.features.forEach(feature => {
+            const properties = feature.properties;
+            const geometry = feature.geometry;
+            let lat, lng;
+
+            if (!properties || properties.amenity !== 'university') {
+                return;
+            }
+
+            if (geometry && geometry.type === 'Point' && geometry.coordinates) {
+                [lng, lat] = geometry.coordinates; // GeoJSON: [lng, lat]
+            } else {
+                return;
+            }
+            
+            const uni = {
+                // *** CLAVE PARA PERSISTENCIA ***
+               id: properties['@id'], // Usamos el ID de OpenStreetMap como identificador único
+                name: properties.name || 'Sin nombre',
+                city: properties['addr:city'] || properties['addr:place'] || properties['is_in:city'] || properties['is_in:district'] || properties['is_in'] || 'Ciudad no especificada',
+                lat: lat, 
+                lng: lng, 
+                reviews: [],
+                paes: getRandomPaesScore(500,980),
+                website: properties['website']
+            };
+            
+            universities.push(uni);
+
+            // Crear el marcador en Leaflet
+            const marker = L.marker([lat, lng]).addTo(markers);
+            marker.bindPopup(`<strong>${uni.name}</strong><br>${uni.city}`);
+            marker.on('click', () => showUniversityDetails(uni));
+        });
+
+        // Cargar las reseñas después de poblar el array de universidades
+        loadAdditionalData(); 
+        loadReviews(); 
+
+        if (markers.getLayers().length > 0) {
+            map.fitBounds(markers.getBounds());
+        } else {
+            map.setView([-33.447487, -70.673676], 5); 
+        }
+
+    } catch (error) {
+        console.error('Error al cargar o procesar el archivo GeoJSON:', error);
+    }
+}
+
+
+// 3. Funciones de Interfaz
+function showUniversityDetails(uni) {
+    currentUniversity = uni;
+    const panel = document.getElementById('details-panel');
+    const content = document.getElementById('uni-details-content');
+
+    let reviewHtml = uni.reviews.length > 0 
+        ? uni.reviews.map(r => `
+            <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                <p style="margin: 0; font-weight: bold;">Tú dice:</p>
+                <p style="margin: 5px 0 0 0; font-style: italic;">"${r.text}"</p>
+                <small style="color: #999;">${new Date(r.timestamp).toLocaleDateString()}</small>
+            </div>
+        `).join('')
+        : '<p style="text-align: center; color: #666;">Sé el primero en dejar una reseña.</p>';
+
+    content.innerHTML = `
+        <h3>${uni.name}</h3>
+        <p><strong>Ciudad:</strong> ${uni.city}</p>
+        <hr>
+        <h4>Información Académica:</h4>
+        <p><strong>Puntaje PAES (Referencial):</strong> ${uni.paes || 'No especificado'}</p>
+        <p><strong>Sitio Web:</strong> ${uni.website ? `<a href="${uni.website}" target="_blank">${uni.website}</a>` : 'No especificado'}</p>
+
+        <h4>Escribe una Reseña:</h4>
+        <textarea id="review-text" rows="3" placeholder="Escribe tu reseña aquí..."></textarea>
+        <button onclick="submitReview()">Enviar Reseña</button>
+        <hr>
+        <h4>Reseñas Recientes:</h4>
+        ${reviewHtml}
+    `;
+    
+    panel.classList.add('open'); 
+    map.panTo([uni.lat, uni.lng]);
+}
+
+function closeDetailsPanel() {
+    document.getElementById('details-panel').classList.remove('open');
+    currentUniversity = null;
+}
+
+function submitReview() {
+    if (!currentUniversity) return;
+
+    const reviewText = document.getElementById('review-text').value.trim();
+    if (reviewText) {
+        // Agrega la reseña al objeto local, incluyendo una marca de tiempo
+        currentUniversity.reviews.push({ 
+            user: 'Tú', 
+            text: reviewText,
+            timestamp: new Date().toISOString()
+        });
+        
+        // *** CLAVE PARA PERSISTENCIA ***
+        saveReviews(); 
+        
+        alert('¡Reseña enviada con éxito!');
+        document.getElementById('review-text').value = '';
+        showUniversityDetails(currentUniversity); // Recargar los detalles para ver la nueva reseña
+    } else {
+        alert('Por favor, escribe una reseña antes de enviarla.');
+    }
+}
+
+function updateAdditionalData() {
+    if (!currentUniversity) return;
+
+    const paesInput = document.getElementById('paes-score').value.trim();
+    const websiteInput = document.getElementById('website-url').value.trim();
+    
+    // Actualizar el objeto university actual
+    currentUniversity.paes = paesInput;
+    currentUniversity.website = websiteInput;
+
+    // Guardar los cambios en localStorage
+    saveAdditionalData(); 
+    
+    alert('Datos adicionales guardados con éxito!');
+    showUniversityDetails(currentUniversity); // Recargar los detalles para ver los datos actualizados
+}
+
+// 4. Iniciar la carga de datos
+fetchUniversities();
+</script>
+
+<footer>
+    <p>&copy; 2025 ExploraU Team. Todos los derechos reservados.</p>
+    <p>Hecho con ❤️ para la exploración educativa.</p>
+</footer>
+
+</body>
+</html>
