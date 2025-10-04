@@ -232,10 +232,10 @@ let universities = [];
 let currentUniversity = null; 
 
 // 1. Inicialización de Leaflet
-const map = L.map('map').setView([-36.78470994968031, -73.08512763287513], 15); 
+const map = L.map('map').setView([-36.78470994968031, -73.08512763287513], 13); 
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 11,
+    maxZoom: 20,
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
@@ -411,4 +411,5 @@ fetchUniversities();
 </footer>
 
 </body>
+
 </html>
